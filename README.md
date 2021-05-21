@@ -6,6 +6,10 @@ looks an awful lot like our primary bastion host including operating system
 version and installed software. It also installs a basic Python 3 version with
 some standard libraries and JupyterLab extensions.
 
+If you update the version of JupyterHub in this container you need to make sure
+that it matches the version of JupyterHub installed in the main JupyterHub
+container.
+
 ## using this container
 
 You could actually run this base notebook directly if you wanted. However, you
