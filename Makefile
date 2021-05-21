@@ -20,14 +20,15 @@ all: build
 .PHONY: build
 build:
 	@echo "building image for ${IMAGE_ID}"
-	docker build --build-arg GIT_USERNAME --build-arg GIT_PASSWORD -t $(IMAGE_NAME):latest -t $(IMAGE_ID) .
+	docker build --build-arg GIT_USERNAME --build-arg GIT_PASSWORD -t $(IMAGE_NAME):latest .
 
 .PHONY: push
 push: build
 	@echo "pushing $(IMAGE_ID)"
+	docker tag $(IMAGE_NAME):latest $(IMAGE_ID)
 	docker push $(IMAGE_ID)
 
 .PHONY: clean
 clean:
 	@echo "removing built image ${IMAGE_ID}"
-	docker image rm $(IMAGE_NAME):latest $(IMAGE_ID)
+	docker image rm -f $(IMAGE_NAME):latest $(IMAGE_ID)
