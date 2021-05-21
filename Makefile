@@ -20,7 +20,7 @@ all: build
 .PHONY: build
 build:
 	@echo "building image for ${IMAGE_ID}"
-	docker build -t $(IMAGE_NAME):latest -t $(IMAGE_ID) .
+	docker build --build-arg GIT_USERNAME --build-arg GIT_PASSWORD -t $(IMAGE_NAME):latest -t $(IMAGE_ID) .
 
 .PHONY: push
 push: build
