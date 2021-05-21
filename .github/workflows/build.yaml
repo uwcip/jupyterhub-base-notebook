@@ -29,6 +29,9 @@ jobs:
 
       - name: build and push
         run: make push
+        env:
+          GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
+          GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
 
       - uses: act10ns/slack@v1
         with:
