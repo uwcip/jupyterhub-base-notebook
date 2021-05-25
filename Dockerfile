@@ -161,10 +161,9 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
 
 # add postgres libraries
 RUN add-apt-repository "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" && \
-    curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add - && \
-    apt-get update && apt-get install -yq --no-install-recommends \
-      postgresql-client-13 libpq-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql-archive-bullseye.gpg && \
+    apt-get update && apt-get install -yq --no-install-recommends postgresql-client-13 libpq-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # create the data directory for shared data to exist
 RUN mkdir -p /data \
