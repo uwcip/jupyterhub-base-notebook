@@ -19,10 +19,10 @@ WORKDIR /tmp
 # check https://github.com/conda-forge/miniforge/releases
 
 # conda version
-ARG conda_version="4.10.0"
+ARG conda_version="4.10.1"
 
 # miniforge installer patch version
-ARG miniforge_patch_number="0"
+ARG miniforge_patch_number="4"
 
 # miniforge installer architecture
 ARG miniforge_arch="x86_64"
@@ -39,13 +39,13 @@ ARG miniforge_version="${conda_version}-${miniforge_patch_number}"
 ARG miniforge_installer="${miniforge_python}-${miniforge_version}-Linux-${miniforge_arch}.sh"
 
 # miniforge checksum
-ARG miniforge_checksum="c56cc2da96043688c6bdb521d825de27754de0a342d5228ba3155cd94532ff75"
+ARG miniforge_checksum="9eb335cb559644a6e462c077ebc129af51b7329817574fb707b994dafdddf2af"
 
 # install all OS dependencies for notebook server that starts but lacks all
 # features (e.g., download as all possible file formats)
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get -q update \
- && apt-get install -yq --no-install-recommends curl wget ca-certificates sudo locales fonts-liberation fonts-dejavu gfortran gcc \
+ && apt-get install -yq --no-install-recommends tini curl wget ca-certificates sudo locales fonts-liberation fonts-dejavu gfortran gcc \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # configure locales
@@ -70,7 +70,6 @@ COPY fix-permissions /usr/local/bin/fix-permissions
 RUN chmod a+rx /usr/local/bin/fix-permissions
 
 # enable prompt color in the skeleton .bashrc before creating the default NB_USER
-# hadolint ignore=SC2016
 RUN sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/skel/.bashrc && \
    # add call to conda init script see https://stackoverflow.com/a/58081608/4413446
    echo 'eval "$(command conda shell.bash hook 2> /dev/null)"' >> /etc/skel/.bashrc 
@@ -80,19 +79,19 @@ RUN sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/skel/.bashr
 RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
     sed -i.bak -e 's/^%admin/#%admin/' /etc/sudoers && \
     sed -i.bak -e 's/^%sudo/#%sudo/' /etc/sudoers && \
-    useradd -l -m -s /bin/bash -N -u $NB_UID $NB_USER && \
-    mkdir -p $CONDA_DIR && \
-    chown $NB_USER:$NB_GID $CONDA_DIR && \
+    useradd -l -m -s /bin/bash -N -u "${NB_UID}" "${NB_USER}" && \
+    mkdir -p "${CONDA_DIR}" && \
+    chown "${NB_USER}:${NB_GID}" "${CONDA_DIR}" && \
     chmod g+w /etc/passwd && \
-    fix-permissions $HOME && \
-    fix-permissions $CONDA_DIR
+    fix-permissions "${HOME}" && \
+    fix-permissions "${CONDA_DIR}"
 
-USER $NB_UID
+USER ${NB_UID}
 ARG PYTHON_VERSION=3.7
 
 # setup work directory for backward-compatibility
-RUN mkdir "/home/$NB_USER/work" && \
-    fix-permissions "/home/$NB_USER"
+RUN mkdir "/home/${NB_USER}/work" && \
+    fix-permissions "/home/${NB_USER}"
 
 # install conda as jovyan and check the sha256 sum provided on the download site
 # prerequisites installation: conda, mamba, pip, tini
@@ -104,28 +103,29 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
     echo "conda ${CONDA_VERSION}" >> $CONDA_DIR/conda-meta/pinned && \
     conda config --system --set auto_update_conda false && \
     conda config --system --set show_channel_urls true && \
-    if [ ! $PYTHON_VERSION = 'default' ]; then conda install --yes python=$PYTHON_VERSION; fi && \
-    conda list python | grep '^python ' | tr -s ' ' | cut -d '.' -f 1,2 | sed 's/$/.*/' >> $CONDA_DIR/conda-meta/pinned && \
-    conda install --quiet --yes "conda=${CONDA_VERSION}" "pip" "tini=0.18.0" && \
+    if [[ "${PYTHON_VERSION}" != "default" ]]; then conda install --yes python="${PYTHON_VERSION}"; fi && \
+    conda list python | grep '^python ' | tr -s ' ' | cut -d ' ' -f 1,2 >> "${CONDA_DIR}/conda-meta/pinned" && \
+    conda install --quiet --yes \
+    "conda=${CONDA_VERSION}" \
+    'pip' && \
     conda update --all --quiet --yes && \
-    conda list tini | grep tini | tr -s ' ' | cut -d ' ' -f 1,2 >> $CONDA_DIR/conda-meta/pinned && \
     conda clean --all -f -y && \
-    rm -rf /home/$NB_USER/.cache/yarn && \
-    fix-permissions $CONDA_DIR && \
-    fix-permissions /home/$NB_USER
+    rm -rf "/home/${NB_USER}/.cache/yarn" && \
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
 
 # install Jupyter Notebook, Lab, and Hub
 # generate a notebook server config
 # cleanup temporary files
 # correct permissions
-RUN conda install --quiet --yes "notebook=6.3.0" "jupyterhub=1.4.1" "jupyterlab=3.0.15" && \
+RUN conda install --quiet --yes "notebook=6.4.0" "jupyterhub=1.4.1" "jupyterlab=3.0.16" && \
     conda clean --all -f -y && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
-    rm -rf $CONDA_DIR/share/jupyter/lab/staging && \
-    rm -rf /home/$NB_USER/.cache/yarn && \
-    fix-permissions $CONDA_DIR && \
-    fix-permissions /home/$NB_USER
+    jupyter lab clean && \
+    rm -rf "/home/${NB_USER}/.cache/yarn" && \
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
 
 EXPOSE 8888
 
@@ -155,7 +155,7 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
 # install base software that is present on the bastion host
 RUN apt-get update && apt-get install -yq --no-install-recommends \
       procps psmisc htop screen \
-      python3-dev python3-venv python3-wheel python3-pip python3-setuptools python3-tenacity python3-ujson python3-tabulate python3-tk pycodestyle \
+      python3-dev python3-venv python3-wheel python3-pip python3-setuptools python3-tenacity python3-ujson python3-tabulate python3-tk pycodestyle python3-requests \
       r-base r-base-dev r-cran-rpostgresql r-cran-data.table r-cran-lubridate r-cran-rmarkdown r-cran-tidyverse r-cran-rcurl r-cran-repr \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -172,7 +172,7 @@ RUN mkdir -p /data \
  && true
 
 # do not let the container start as root
-USER $NB_UID
+USER ${NB_UID}
 
 FROM base AS builder
 
@@ -184,7 +184,7 @@ ARG GIT_PASSWORD
 ENV GIT_PASSWORD=$GIT_PASSWORD
 RUN mkdir -p /tmp/uwcip && \
     git config --global credential.helper '!f() { sleep 1; echo "username=${GIT_USERNAME}"; echo "password=${GIT_PASSWORD}"; }; f' && \
-    git clone --depth 1 --recurse-submodules --shallow-submodules --branch v1.2.1 https://github.com/uwcip/ciptools.git /tmp/uwcip/ciptools
+    git clone --depth 1 --recurse-submodules --shallow-submodules --branch v1.2.3 https://github.com/uwcip/ciptools.git /tmp/uwcip/ciptools
 
 FROM base AS final
 
@@ -205,7 +205,7 @@ RUN pip install --no-cache-dir \
     # put a little thing in the upper right corner telling you how much memory you're using
     "jupyter-resource-usage==0.6.0" "jupyterlab-system-monitor==0.8.0" \
     # add notebook diff support
-    "nbdime==3.0.0" \
+    "nbdime==3.1.0" \
     # add git support
     "jupyterlab-git==0.30.1" \
     # add support to show variables
@@ -221,5 +221,5 @@ COPY adventure /usr/local/bin/adventure
 RUN chmod a+rx /usr/local/bin/adventure
 
 # make sure the notebook starts as the notebook user
-USER $NB_UID
-WORKDIR $HOME
+USER ${NB_UID}
+WORKDIR ${HOME}
