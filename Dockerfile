@@ -1,7 +1,7 @@
 # Original notebook created by the Jupyter Development Team
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
-FROM debian:buster-slim@sha256:f077cd32bfea6c4fa8ddeea05c53b27e90c7fad097e2011c9f5f11a8668f8db4 AS base
+FROM debian:buster-slim@sha256:c6e92d5b7730fdfc2753c4cce68c90d6c86a6a3391955549f9fe8ad6ce619ce0 AS base
 
 ARG NB_USER="jovyan"
 ARG NB_UID="1000"
