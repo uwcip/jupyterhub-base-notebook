@@ -19,10 +19,10 @@ WORKDIR /tmp
 # check https://github.com/conda-forge/miniforge/releases
 
 # conda version
-ARG conda_version="4.10.1"
+ARG conda_version="4.10.2"
 
 # miniforge installer patch version
-ARG miniforge_patch_number="4"
+ARG miniforge_patch_number="0"
 
 # miniforge installer architecture
 ARG miniforge_arch="x86_64"
@@ -39,7 +39,7 @@ ARG miniforge_version="${conda_version}-${miniforge_patch_number}"
 ARG miniforge_installer="${miniforge_python}-${miniforge_version}-Linux-${miniforge_arch}.sh"
 
 # miniforge checksum
-ARG miniforge_checksum="9eb335cb559644a6e462c077ebc129af51b7329817574fb707b994dafdddf2af"
+ARG miniforge_checksum="1e89ee86afa06e23b2478579be16a33fff6cff346314f6a6382fd20b1f83e669"
 
 # install all OS dependencies for notebook server that starts but lacks all
 # features (e.g., download as all possible file formats)
@@ -145,7 +145,7 @@ RUN fix-permissions /etc/jupyter/
 
 # install all OS dependencies for fully functional notebook server
 RUN apt-get update && apt-get install -yq --no-install-recommends \
-      build-essential nano vim vim-scripts bash zsh git git-lfs psmisc tzdata zip unzip bzip2 gzrt jq make less sqlite3 patch \
+      nano vim vim-scripts bash zsh git git-lfs psmisc tzdata zip unzip bzip2 gzrt jq make less sqlite3 patch \
       apt-transport-https gnupg-agent gnupg software-properties-common openssh-client \
       inkscape libsm6 libxext-dev libxrender1 lmodern netcat socat \
       # ---- nbconvert dependencies ----
@@ -184,7 +184,7 @@ ARG GIT_PASSWORD
 ENV GIT_PASSWORD=$GIT_PASSWORD
 RUN mkdir -p /tmp/uwcip && \
     git config --global credential.helper '!f() { sleep 1; echo "username=${GIT_USERNAME}"; echo "password=${GIT_PASSWORD}"; }; f' && \
-    git clone --depth 1 --recurse-submodules --shallow-submodules --branch v1.2.3 https://github.com/uwcip/ciptools.git /tmp/uwcip/ciptools
+    git clone --depth 1 --recurse-submodules --shallow-submodules --branch v1.2.4 https://github.com/uwcip/ciptools.git /tmp/uwcip/ciptools
 
 FROM base AS final
 
