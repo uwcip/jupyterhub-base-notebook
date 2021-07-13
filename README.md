@@ -15,7 +15,7 @@ container.
 You could actually run this base notebook directly if you wanted. However, you
 should really inherit from this and add additional things. The best example of
 that is the [datascience-notebook](https://github.com/uwcip/jupyterhub-datascience-notebook)
-which is the standard notebook for [JupyterHub](https://hub.lab.cip.uw.edu).
+which is the standard notebook for [the UW CIP's JupyterHub](https://hub.lab.cip.uw.edu).
 
 ## deployment
 
