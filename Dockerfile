@@ -10,9 +10,6 @@ ARG NB_USER="jovyan"
 ARG NB_UID="1000"
 ARG NB_GID="100"
 
-# use jupyter lab by default
-ENV JUPYTER_ENABLE_LAB yes
-
 # fix DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -50,12 +47,32 @@ ARG miniforge_installer="${miniforge_python}-${miniforge_version}-Linux-${minifo
 # miniforge checksum
 ARG miniforge_checksum="1e89ee86afa06e23b2478579be16a33fff6cff346314f6a6382fd20b1f83e669"
 
-# install all OS dependencies for notebook server that starts but lacks all
-# features (e.g., download as all possible file formats)
-ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get -q update \
- && apt-get install -yq --no-install-recommends tini curl wget ca-certificates sudo locales fonts-liberation fonts-dejavu gfortran gcc \
- && apt-get clean && rm -rf /var/lib/apt/lists/*
+# create the data directory and move the home directory
+RUN mkdir -p /data \
+ && ln -sf /mnt/nfs/jupiter/shared /data/shared \
+ && ln -sf /home /data/home \
+ && true
+
+RUN apt-get update && apt-get install -yq --no-install-recommends \
+      # ---- cip bastion host equivalencies
+      procps psmisc htop screen socat \
+      nano vim vim-scripts bash zsh git git-lfs psmisc tzdata zip unzip bzip2 gzrt jq make less sqlite3 patch \
+      apt-transport-https gnupg-agent gnupg software-properties-common openssh-client \
+      python3-dev python3-venv python3-wheel python3-pip python3-setuptools python3-tenacity python3-ujson python3-tabulate python3-tk pycodestyle python3-requests \
+      r-base r-base-dev r-cran-rpostgresql r-cran-data.table r-cran-lubridate r-cran-rmarkdown r-cran-tidyverse r-cran-rcurl r-cran-repr \
+      # ---- OS dependencies for notebook server that starts but lacks all features ----
+      tini curl wget ca-certificates sudo locales fonts-liberation fonts-dejavu gfortran gcc \
+      # ---- OS dependencies for fully functional notebook server ----
+      inkscape libsm6 libxext-dev libxrender1 lmodern netcat \
+      # ---- nbconvert dependencies ----
+      texlive-xetex texlive-fonts-recommended texlive-plain-generic \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# add postgres libraries
+RUN add-apt-repository "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" && \
+    curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql-archive-buster.gpg && \
+    apt-get update && apt-get install -yq --no-install-recommends postgresql-client-13 libpq-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # configure locales
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
@@ -72,7 +89,8 @@ ENV CONDA_DIR=/opt/conda \
 ENV PATH=$CONDA_DIR/bin:$PATH \
     HOME=/home/$NB_USER \
     CONDA_VERSION="${conda_version}" \
-    MINIFORGE_VERSION="${miniforge_version}"
+    MINIFORGE_VERSION="${miniforge_version}" \
+    JUPYTER_ENABLE_LAB=yes
 
 # copy a script that we will use to correct permissions after running certain commands
 COPY fix-permissions /usr/local/bin/fix-permissions
@@ -114,9 +132,7 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
     conda config --system --set show_channel_urls true && \
     if [[ "${PYTHON_VERSION}" != "default" ]]; then conda install --yes python="${PYTHON_VERSION}"; fi && \
     conda list python | grep '^python ' | tr -s ' ' | cut -d ' ' -f 1,2 >> "${CONDA_DIR}/conda-meta/pinned" && \
-    conda install --quiet --yes \
-    "conda=${CONDA_VERSION}" \
-    'pip' && \
+    conda install --quiet --yes "conda=${CONDA_VERSION}" 'pip' && \
     conda update --all --quiet --yes && \
     conda clean --all -f -y && \
     rm -rf "/home/${NB_USER}/.cache/yarn" && \
@@ -127,7 +143,7 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
 # generate a notebook server config
 # cleanup temporary files
 # correct permissions
-RUN conda install --quiet --yes "notebook=6.4.0" "jupyterhub=1.4.2" "jupyterlab=3.0.16" && \
+RUN conda install --quiet --yes "notebook=6.4.0" "jupyterhub=1.4.1" "jupyterlab=3.0.16" && \
     conda clean --all -f -y && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
@@ -142,52 +158,10 @@ EXPOSE 8888
 ENTRYPOINT ["tini", "-g", "--"]
 CMD ["start-notebook.sh"]
 
-# copy local files as late as possible to avoid cache busting
-COPY run-one run-one-constantly start.sh start-notebook.sh start-singleuser.sh /usr/local/bin/
-# currently need to have both jupyter_notebook_config and jupyter_server_config to support classic and lab
-COPY jupyter_notebook_config.py /etc/jupyter/
-
-# fix permissions on /etc/jupyter as root
-USER root
-
-RUN fix-permissions /etc/jupyter/
-
-# install all OS dependencies for fully functional notebook server
-RUN apt-get update && apt-get install -yq --no-install-recommends \
-      nano vim vim-scripts bash zsh git git-lfs psmisc tzdata zip unzip bzip2 gzrt jq make less sqlite3 patch \
-      apt-transport-https gnupg-agent gnupg software-properties-common openssh-client \
-      inkscape libsm6 libxext-dev libxrender1 lmodern netcat socat \
-      # ---- nbconvert dependencies ----
-      texlive-xetex texlive-fonts-recommended texlive-plain-generic \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# install base software that is present on the bastion host
-RUN apt-get update && apt-get install -yq --no-install-recommends \
-      procps psmisc htop screen \
-      python3-dev python3-venv python3-wheel python3-pip python3-setuptools python3-tenacity python3-ujson python3-tabulate python3-tk pycodestyle python3-requests \
-      r-base r-base-dev r-cran-rpostgresql r-cran-data.table r-cran-lubridate r-cran-rmarkdown r-cran-tidyverse r-cran-rcurl r-cran-repr \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# add postgres libraries
-RUN add-apt-repository "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" && \
-    curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql-archive-bullseye.gpg && \
-    apt-get update && apt-get install -yq --no-install-recommends postgresql-client-13 libpq-dev && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# create the data directory for shared data to exist
-RUN mkdir -p /data \
- && ln -sf /mnt/nfs/jupiter/shared /data/shared \
- && ln -sf /home /data/home \
- && true
-
-# do not let the container start as root
-USER ${NB_UID}
-
 # install cip dependencies
 RUN pip install --no-cache-dir https://github.com/uwcip/python-ciptools/releases/download/v${ciptools_version}/ciptools-${ciptools_version}.tar.gz \
     && fix-permissions "${CONDA_DIR}" \
-    && fix-permissions "/home/${NB_USER}" \
-    && rm -rf /tmp/uwcip
+    && fix-permissions "/home/${NB_USER}"
 
 RUN pip install --no-cache-dir \
     # install a little adventure
@@ -203,14 +177,25 @@ RUN pip install --no-cache-dir \
     # add support to show variables
     "lckr-jupyterlab-variableinspector==3.0.9" \
     && jupyter lab build \
+    && rm -rf /home/${NB_USER}/.cache \
     && fix-permissions "${CONDA_DIR}" \
     && fix-permissions "/home/${NB_USER}" \
     && true
 
-# install the adventure script
+# final cleanups
 USER root
+
+# install the adventure script
 COPY adventure /usr/local/bin/adventure
 RUN chmod a+rx /usr/local/bin/adventure
+
+# copy local files as late as possible to avoid cache busting
+COPY run-one run-one-constantly start.sh start-notebook.sh start-singleuser.sh /usr/local/bin/
+# currently need to have both jupyter_notebook_config and jupyter_server_config to support classic and lab
+COPY jupyter_notebook_config.py /etc/jupyter/
+
+# fix permissions on /etc/jupyter as root
+RUN fix-permissions /etc/jupyter/
 
 # make sure the notebook starts as the notebook user
 USER ${NB_UID}
