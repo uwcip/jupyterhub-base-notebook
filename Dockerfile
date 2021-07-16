@@ -53,7 +53,8 @@ RUN mkdir -p /data \
  && ln -sf /home /data/home \
  && true
 
-RUN apt-get update && apt-get install -yq --no-install-recommends \
+RUN apt-get -q update && apt-get -y upgrade && \
+    apt-get install -yq --no-install-recommends \
       # ---- cip bastion host equivalencies
       procps psmisc htop screen socat \
       nano vim vim-scripts bash zsh git git-lfs psmisc tzdata zip unzip bzip2 gzrt jq make less sqlite3 patch \
