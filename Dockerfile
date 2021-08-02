@@ -25,10 +25,10 @@ ARG ciptools_version="1.0.1"
 # check https://github.com/conda-forge/miniforge/releases
 
 # conda version
-ARG conda_version="4.10.2"
+ARG conda_version="4.10.3"
 
 # miniforge installer patch version
-ARG miniforge_patch_number="0"
+ARG miniforge_patch_number="3"
 
 # miniforge installer architecture
 ARG miniforge_arch="x86_64"
