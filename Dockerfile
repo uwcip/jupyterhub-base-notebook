@@ -45,7 +45,7 @@ ARG miniforge_version="${conda_version}-${miniforge_patch_number}"
 ARG miniforge_installer="${miniforge_python}-${miniforge_version}-Linux-${miniforge_arch}.sh"
 
 # miniforge checksum
-ARG miniforge_checksum="1e89ee86afa06e23b2478579be16a33fff6cff346314f6a6382fd20b1f83e669"
+ARG miniforge_checksum="a012c24e1cc3bcbe74a1e5693e510830e7c2956e85877b08d1e28707a0bd8d75"
 
 # create the data directory and move the home directory
 RUN mkdir -p /data \
