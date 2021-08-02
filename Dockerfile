@@ -17,7 +17,7 @@ USER root
 WORKDIR /tmp
 
 # what version of ciptools should we use
-ARG ciptools_version="1.0.1"
+ARG ciptools_version="1.0.2"
 
 # ---- Miniforge installer ----
 # default values can be overridden at build time
@@ -144,7 +144,7 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
 # generate a notebook server config
 # cleanup temporary files
 # correct permissions
-RUN conda install --quiet --yes "notebook=6.4.0" "jupyterhub=1.4.2" "jupyterlab=3.0.16" && \
+RUN conda install --quiet --yes "notebook=6.4.0" "jupyterhub=1.4.2" "jupyterlab=3.1.1" && \
     conda clean --all -f -y && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
@@ -174,9 +174,11 @@ RUN pip install --no-cache-dir \
     # add notebook diff support
     "nbdime==3.1.0" \
     # add git support
-    "jupyterlab-git==0.30.1" \
+    "jupyterlab-git==0.31.0" \
     # add support to show variables
     "lckr-jupyterlab-variableinspector==3.0.9" \
+    # share links to running notebooks
+    "jupyterlab-link-share==0.2.0" \
     && jupyter lab build \
     && rm -rf /home/${NB_USER}/.cache \
     && fix-permissions "${CONDA_DIR}" \
