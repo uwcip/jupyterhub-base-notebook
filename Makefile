@@ -20,7 +20,7 @@ all: build
 .PHONY: build
 build:
 	@echo "building image for ${IMAGE_ID}"
-	docker build -t $(IMAGE_NAME):latest .
+	docker build --progress plain -t $(IMAGE_NAME):latest .
 
 .PHONY: push
 push: build
