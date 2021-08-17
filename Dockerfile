@@ -144,7 +144,7 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
 # generate a notebook server config
 # cleanup temporary files
 # correct permissions
-RUN conda install --quiet --yes "notebook=6.4.2" "jupyterhub=1.4.2" "jupyterlab=3.1.4" && \
+RUN conda install --quiet --yes "notebook=6.4.3" "jupyterhub=1.4.2" "jupyterlab=3.1.7" && \
     conda clean --all -f -y && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
@@ -174,7 +174,7 @@ RUN pip install --no-cache-dir \
     # add notebook diff support
     "nbdime==3.1.0" \
     # add git support
-    "jupyterlab-git==0.32.0" \
+    "jupyterlab-git==0.32.1" \
     # add support to show variables
     "lckr-jupyterlab-variableinspector==3.0.9" \
     # share links to running notebooks
