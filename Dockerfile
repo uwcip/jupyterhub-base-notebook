@@ -1,7 +1,7 @@
 # Original notebook created by the Jupyter Development Team
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
-FROM debian:buster-slim@sha256:c8152821b158dd171b4acf92afb0a58fc2faa179a7e0af8ace358fbe1668e99d
+FROM debian:bullseye-slim@sha256:dacf278785a4daa9de07596ec739dbc07131e189942772210709c5c0777e8437
 
 # github metadata
 LABEL org.opencontainers.image.source=https://github.com/uwcip/jupyterhub-base-notebook
@@ -115,7 +115,7 @@ RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
     fix-permissions "${CONDA_DIR}"
 
 USER ${NB_UID}
-ARG PYTHON_VERSION=3.7
+ARG PYTHON_VERSION=3.9
 
 # setup work directory for backward-compatibility
 RUN mkdir "/home/${NB_USER}/work" && \
@@ -174,7 +174,7 @@ RUN pip install --no-cache-dir \
     # add notebook diff support
     "nbdime==3.1.0" \
     # add git support
-    "jupyterlab-git==0.32.1" \
+    "jupyterlab-git==0.32.2" \
     # add support to show variables
     "lckr-jupyterlab-variableinspector==3.0.9" \
     # share links to running notebooks
