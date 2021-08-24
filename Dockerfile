@@ -16,9 +16,6 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 USER root
 WORKDIR /tmp
 
-# what version of ciptools should we use
-ARG ciptools_version="1.1.0"
-
 # ---- Miniforge installer ----
 # default values can be overridden at build time
 # (ARGS are in lower case to distinguish them from ENV)
@@ -160,6 +157,7 @@ ENTRYPOINT ["tini", "-g", "--"]
 CMD ["start-notebook.sh"]
 
 # install cip dependencies
+ARG ciptools_version="1.1.0"
 RUN pip install --no-cache-dir https://github.com/uwcip/python-ciptools/releases/download/v${ciptools_version}/ciptools-${ciptools_version}.tar.gz \
     && fix-permissions "${CONDA_DIR}" \
     && fix-permissions "/home/${NB_USER}"
