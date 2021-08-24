@@ -17,7 +17,7 @@ USER root
 WORKDIR /tmp
 
 # what version of ciptools should we use
-ARG ciptools_version="1.0.2"
+ARG ciptools_version="1.1.0"
 
 # ---- Miniforge installer ----
 # default values can be overridden at build time
