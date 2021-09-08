@@ -60,7 +60,7 @@ RUN apt-get -q update && apt-get -y upgrade && \
       # ---- OS dependencies for fully functional notebook server ----
       inkscape libsm6 libxext-dev libxrender1 lmodern netcat \
       # ---- nbconvert dependencies ----
-      texlive-xetex texlive-fonts-recommended texlive-plain-generic \
+      texlive-xetex texlive-fonts-recommended texlive-latex-recommended \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # add postgres libraries
