@@ -47,7 +47,7 @@ ARG miniforge_installer="${miniforge_python}-${miniforge_version}-Linux-${minifo
 ARG miniforge_checksum="2692f9ae27327412cbf018ec0218d21a99b013d0597ccaefc988540c8a9ced65"
 
 # create the data directory and move the home directory
-RUN mkdir -p /data && ln -sf /mnt/nfs/jupiter/shared /data/shared
+RUN mkdir -p /data && ln -sf /mnt/nfs/jupiter/shared /data/shared && ln -sf /mnt/nfs/neptune/archived /data/archived
 
 RUN apt-get -q update && apt-get -y upgrade && \
     apt-get install -yq --no-install-recommends \
