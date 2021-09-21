@@ -98,6 +98,12 @@ if [ "$(id -u)" == 0 ] ; then
     # Add ${CONDA_DIR}/bin to sudo secure_path
     sed -r "s#Defaults\s+secure_path\s*=\s*\"?([^\"]+)\"?#Defaults secure_path=\"\1:${CONDA_DIR}/bin\"#" /etc/sudoers | grep secure_path > /etc/sudoers.d/path
 
+    # Launch cron if requested
+    if [[ "${RUN_CRON}" == "1" || "${RUN_CRON}" == 'yes' ]]; then
+        echo "Running cron daemon"
+        /usr/sbin/cron
+    fi
+
     # Exec the command as NB_USER with the PATH and the rest of
     # the environment preserved
     run-hooks /usr/local/bin/before-notebook.d

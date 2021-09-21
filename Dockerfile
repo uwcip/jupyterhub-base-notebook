@@ -46,7 +46,7 @@ ARG miniforge_installer="${miniforge_python}-${miniforge_version}-Linux-${minifo
 # look for the *-Linux-*.sh.sha256 file
 ARG miniforge_checksum="2692f9ae27327412cbf018ec0218d21a99b013d0597ccaefc988540c8a9ced65"
 
-# create the data directory and move the home directory
+# create the data directory and add symlinks for our NFS mounts
 RUN mkdir -p /data && ln -sf /mnt/nfs/jupiter/shared /data/shared && ln -sf /mnt/nfs/neptune/archived /data/archived
 
 RUN apt-get -q update && apt-get -y upgrade && \
@@ -58,7 +58,7 @@ RUN apt-get -q update && apt-get -y upgrade && \
       python3-dev python3-venv python3-wheel python3-pip python3-setuptools python3-tenacity python3-ujson python3-tabulate python3-tk pycodestyle python3-requests \
       r-base r-base-dev r-cran-rpostgresql r-cran-data.table r-cran-lubridate r-cran-rmarkdown r-cran-tidyverse r-cran-rcurl r-cran-repr \
       # ---- OS dependencies for notebook server that starts but lacks all features ----
-      tini curl wget ca-certificates sudo locales fonts-liberation fonts-dejavu gfortran gcc \
+      tini cron ssmtp curl wget ca-certificates sudo locales fonts-liberation fonts-dejavu gfortran gcc \
       # ---- OS dependencies for fully functional notebook server ----
       inkscape libsm6 libxext-dev libxrender1 lmodern netcat \
       # ---- nbconvert dependencies ----
@@ -87,7 +87,8 @@ ENV PATH=$CONDA_DIR/bin:$PATH \
     HOME=/home/$NB_USER \
     CONDA_VERSION="${conda_version}" \
     MINIFORGE_VERSION="${miniforge_version}" \
-    JUPYTER_ENABLE_LAB=yes
+    JUPYTER_ENABLE_LAB=yes \
+    RUN_CRON=yes
 
 # copy a script that we will use to correct permissions after running certain commands
 COPY fix-permissions /usr/local/bin/fix-permissions
@@ -171,11 +172,16 @@ RUN pip install --no-cache-dir \
     # add notebook diff support
     "nbdime==3.1.0" \
     # add git support
-    "jupyterlab-git==0.32.3" \
+    "jupyterlab-git==0.32.4" \
     # add support to show variables
     "lckr-jupyterlab-variableinspector==3.0.9" \
     # share links to running notebooks
     "jupyterlab-link-share==0.2.1" \
+    # allow favoriting folders
+    "jupyterlab-favorites==3.0.0" \
+    # show recent files and folders
+    "jupyterlab-recents==3.0.1" \
+    # generically build jupyterlab
     && jupyter lab build \
     && rm -rf /home/${NB_USER}/.cache \
     && fix-permissions "${CONDA_DIR}" \
@@ -188,6 +194,9 @@ USER root
 # install the adventure script
 COPY adventure /usr/local/bin/adventure
 RUN chmod a+rx /usr/local/bin/adventure
+
+# copy the ssmtp script
+COPY ssmtp.conf /etc/ssmtp/ssmtp.conf
 
 # copy local files as late as possible to avoid cache busting
 COPY run-one run-one-constantly start.sh start-notebook.sh start-singleuser.sh /usr/local/bin/
