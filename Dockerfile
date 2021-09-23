@@ -1,7 +1,7 @@
 # Original notebook created by the Jupyter Development Team
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
-FROM debian:bullseye-slim@sha256:e3ed4be20c22a1358020358331d177aa2860632f25b21681d79204ace20455a6
+FROM debian:bullseye@sha256:e3ed4be20c22a1358020358331d177aa2860632f25b21681d79204ace20455a6
 
 # github metadata
 LABEL org.opencontainers.image.source=https://github.com/uwcip/jupyterhub-base-notebook
@@ -52,7 +52,7 @@ RUN mkdir -p /data && ln -sf /mnt/nfs/jupiter/shared /data/shared && ln -sf /mnt
 RUN apt-get -q update && apt-get -y upgrade && \
     apt-get install -yq --no-install-recommends \
       # ---- cip bastion host equivalencies
-      procps psmisc htop screen socat \
+      procps psmisc htop screen socat file man manpages \
       nano vim vim-scripts bash zsh git git-lfs psmisc tzdata zip unzip bzip2 gzrt jq make less sqlite3 patch \
       apt-transport-https gnupg-agent gnupg software-properties-common openssh-client \
       python3-dev python3-venv python3-wheel python3-pip python3-setuptools python3-tenacity python3-ujson python3-tabulate python3-tk pycodestyle python3-requests \
