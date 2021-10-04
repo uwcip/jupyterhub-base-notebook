@@ -25,7 +25,7 @@ WORKDIR /tmp
 ARG conda_version="4.10.3"
 
 # miniforge installer patch version
-ARG miniforge_patch_number="5"
+ARG miniforge_patch_number="6"
 
 # miniforge installer architecture
 ARG miniforge_arch="x86_64"
@@ -44,7 +44,7 @@ ARG miniforge_installer="${miniforge_python}-${miniforge_version}-Linux-${minifo
 # miniforge checksum
 # comes from this page: https://github.com/conda-forge/miniforge/releases
 # look for the *-Linux-*.sh.sha256 file
-ARG miniforge_checksum="2692f9ae27327412cbf018ec0218d21a99b013d0597ccaefc988540c8a9ced65"
+ARG miniforge_checksum="c63907ba0971d2ca9a8775bd7ea48b635b2bdce4838b2f2d3a8e751876849595"
 
 # create the data directory and add symlinks for our NFS mounts
 RUN mkdir -p /data && ln -sf /mnt/nfs/jupiter/shared /data/shared && ln -sf /mnt/nfs/neptune/archived /data/archived
@@ -141,7 +141,7 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
 # generate a notebook server config
 # cleanup temporary files
 # correct permissions
-RUN conda install --quiet --yes "notebook=6.4.4" "jupyterhub=1.4.2" "jupyterlab=3.1.13" && \
+RUN conda install --quiet --yes "notebook=6.4.4" "jupyterhub=1.4.2" "jupyterlab=3.1.14" && \
     conda clean --all -f -y && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
