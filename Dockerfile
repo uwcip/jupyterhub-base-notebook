@@ -1,7 +1,7 @@
 # Original notebook created by the Jupyter Development Team
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
-FROM debian:bullseye@sha256:08db48d59c0a91afb802ebafc921be3154e200c452e4d0b19634b426b03e0e25
+FROM debian:bullseye@sha256:86dddd82dddf445aea3d2ea26af46cebd727bf2f47ed810fa1450a0d79722d55
 
 # github metadata
 LABEL org.opencontainers.image.source=https://github.com/uwcip/jupyterhub-base-notebook
