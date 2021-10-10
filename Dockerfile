@@ -47,7 +47,11 @@ ARG miniforge_installer="${miniforge_python}-${miniforge_version}-Linux-${minifo
 ARG miniforge_checksum="c63907ba0971d2ca9a8775bd7ea48b635b2bdce4838b2f2d3a8e751876849595"
 
 # create the data directory and add symlinks for our NFS mounts
-RUN mkdir -p /data && ln -sf /mnt/nfs/jupiter/shared /data/shared && ln -sf /mnt/nfs/neptune/archived /data/archived
+RUN mkdir -p /data && \
+    ln -sf /mnt/nfs/jupiter/shared /data/shared && \
+    ln -sf /mnt/nfs/neptune/archived /data/archived && \
+    ln -sf /mnt/nfs/clustered /data/clustered && \
+    true
 
 RUN apt-get -q update && apt-get -y upgrade && \
     apt-get install -yq --no-install-recommends \
