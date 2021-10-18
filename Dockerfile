@@ -1,7 +1,7 @@
 # Original notebook created by the Jupyter Development Team
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
-FROM debian:bullseye@sha256:b6a47ddbc1de53e0024d19908f5ef7b3d870686f1234fdb2d19770e097db1575
+FROM debian:bullseye@sha256:4d6ab716de467aad58e91b1b720f0badd7478847ec7a18f66027d0f8a329a43c
 
 # github metadata
 LABEL org.opencontainers.image.source=https://github.com/uwcip/jupyterhub-base-notebook
@@ -25,7 +25,7 @@ WORKDIR /tmp
 ARG conda_version="4.10.3"
 
 # miniforge installer patch version
-ARG miniforge_patch_number="6"
+ARG miniforge_patch_number="7"
 
 # miniforge installer architecture
 ARG miniforge_arch="x86_64"
@@ -44,7 +44,7 @@ ARG miniforge_installer="${miniforge_python}-${miniforge_version}-Linux-${minifo
 # miniforge checksum
 # comes from this page: https://github.com/conda-forge/miniforge/releases
 # look for the *-Linux-*.sh.sha256 file
-ARG miniforge_checksum="c63907ba0971d2ca9a8775bd7ea48b635b2bdce4838b2f2d3a8e751876849595"
+ARG miniforge_checksum="fc872522ec427fcab10167a93e802efaf251024b58cc27b084b915a9a73c4474"
 
 # create the data directory and add symlinks for our NFS mounts
 RUN mkdir -p /data && \
@@ -145,7 +145,7 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
 # generate a notebook server config
 # cleanup temporary files
 # correct permissions
-RUN conda install --quiet --yes "notebook=6.4.4" "jupyterhub=1.4.2" "jupyterlab=3.1.14" && \
+RUN conda install --quiet --yes "notebook=6.4.4" "jupyterhub=1.4.2" "jupyterlab=3.2.0" && \
     conda clean --all -f -y && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
@@ -176,7 +176,7 @@ RUN pip install --no-cache-dir \
     # add notebook diff support
     "nbdime==3.1.0" \
     # add git support
-    "jupyterlab-git==0.32.4" \
+    "jupyterlab-git==0.33.0" \
     # add support to show variables
     "lckr-jupyterlab-variableinspector==3.0.9" \
     # share links to running notebooks
