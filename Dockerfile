@@ -145,7 +145,7 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
 # generate a notebook server config
 # cleanup temporary files
 # correct permissions
-RUN conda install --quiet --yes "notebook=6.4.4" "jupyterhub=1.4.2" "jupyterlab=3.2.0" && \
+RUN conda install --quiet --yes "notebook=6.4.5" "jupyterhub=1.5.0" "jupyterlab=3.2.2" && \
     conda clean --all -f -y && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
@@ -161,7 +161,7 @@ ENTRYPOINT ["tini", "-g", "--"]
 CMD ["start-notebook.sh"]
 
 # install cip dependencies
-ARG ciptools_version="1.1.0"
+ARG ciptools_version="1.2.0"
 RUN pip install --no-cache-dir https://github.com/uwcip/python-ciptools/releases/download/v${ciptools_version}/ciptools-${ciptools_version}.tar.gz \
     && fix-permissions "${CONDA_DIR}" \
     && fix-permissions "/home/${NB_USER}"
@@ -174,7 +174,7 @@ RUN pip install --no-cache-dir \
     # put a little thing in the upper right corner telling you how much memory you're using
     "jupyter-resource-usage==0.6.0" "jupyterlab-system-monitor==0.8.0" \
     # add notebook diff support
-    "nbdime==3.1.0" \
+    "nbdime==3.1.1" \
     # add git support
     "jupyterlab-git==0.33.0" \
     # add support to show variables
