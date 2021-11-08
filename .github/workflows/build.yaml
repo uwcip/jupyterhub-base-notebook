@@ -24,14 +24,24 @@ jobs:
         run: make push clean
 
       - uses: 8398a7/action-slack@v3
+        continue-on-error: true
         with:
           status: custom
           fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
           custom_payload: |
             {
-              attachments: [{
-                color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `${process.env.AS_WORKFLOW} - ${process.env.AS_REPO} - ${{ job.status }}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REF} by ${process.env.AS_AUTHOR}`
+              "attachments": [{
+                "color": "${{ job.status }}" === "success" ? "#198754" : "${{ job.status }}" === "failure" ? "#DC3545" : "#FFC107",
+                "title": "${{ job.status }}" === "success" ? `:white_check_mark: SUCCESS - ${process.env.AS_JOB} completed on ${process.env.AS_REPO}` : "${{ job.status }}" === "failure" ? `:no_entry: FAILURE - ${process.env.AS_JOB} failed on ${process.env.AS_REPO}` : `:warning: CANCELED - ${process.env.AS_JOB} canceled on ${process.env.AS_REPO}`,
+                "fields": [
+                  {"title": "Job", "value": `${process.env.AS_JOB}`, "short": true},
+                  {"title": "Workflow", "value": `${process.env.AS_WORKFLOW}`, "short": true},
+                  {"title": "Branch", "value": `${process.env.AS_REF.split("/")[2]}`, "short": true},
+                  {"title": "Commit", "value": `${process.env.AS_COMMIT}`, "short": true},
+                  {"title": "Author", "value": `${process.env.AS_AUTHOR}`, "short": false},
+                  {"title": "Message", "value": `${process.env.AS_MESSAGE}`, "short": false}
+                ],
+                "ts": `${Math.floor(Date.now() / 1000)}`
               }]
             }
         env:
