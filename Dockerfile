@@ -25,7 +25,7 @@ WORKDIR /tmp
 ARG conda_version="4.10.3"
 
 # miniforge installer patch version
-ARG miniforge_patch_number="7"
+ARG miniforge_patch_number="10"
 
 # miniforge installer architecture
 ARG miniforge_arch="x86_64"
@@ -44,7 +44,7 @@ ARG miniforge_installer="${miniforge_python}-${miniforge_version}-Linux-${minifo
 # miniforge checksum
 # comes from this page: https://github.com/conda-forge/miniforge/releases
 # look for the *-Linux-*.sh.sha256 file
-ARG miniforge_checksum="fc872522ec427fcab10167a93e802efaf251024b58cc27b084b915a9a73c4474"
+ARG miniforge_checksum="8b789c619d03760e606a9c9b3d098414653f6037b80f16174ad94f0ee0c679d8"
 
 # create the data directory and add symlinks for our NFS mounts
 RUN mkdir -p /data && \
@@ -145,7 +145,7 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
 # generate a notebook server config
 # cleanup temporary files
 # correct permissions
-RUN conda install --quiet --yes "notebook=6.4.5" "jupyterhub=1.5.0" "jupyterlab=3.2.3" && \
+RUN conda install --quiet --yes "notebook=6.4.6" "jupyterhub=1.5.0" "jupyterlab=3.2.4" && \
     conda clean --all -f -y && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
@@ -161,7 +161,7 @@ ENTRYPOINT ["tini", "-g", "--"]
 CMD ["start-notebook.sh"]
 
 # install cip dependencies
-ARG ciptools_version="1.2.2"
+ARG ciptools_version="1.3.0"
 RUN pip install --no-cache-dir https://github.com/uwcip/python-ciptools/releases/download/v${ciptools_version}/ciptools-${ciptools_version}.tar.gz \
     && fix-permissions "${CONDA_DIR}" \
     && fix-permissions "/home/${NB_USER}"
@@ -172,7 +172,7 @@ RUN pip install --no-cache-dir \
     # enable interactive SQL in the notebook
     "ipython-sql==0.4.0" \
     # put a little thing in the upper right corner telling you how much memory you're using
-    "jupyter-resource-usage==0.6.0" "jupyterlab-system-monitor==0.8.0" \
+    "jupyter-resource-usage==0.6.1" "jupyterlab-system-monitor==0.8.0" \
     # add notebook diff support
     "nbdime==3.1.1" \
     # add git support
@@ -180,7 +180,7 @@ RUN pip install --no-cache-dir \
     # add support to show variables
     "lckr-jupyterlab-variableinspector==3.0.9" \
     # share links to running notebooks
-    "jupyterlab-link-share==0.2.1" \
+    "jupyterlab-link-share==0.2.4" \
     # allow favoriting folders
     "jupyterlab-favorites==3.0.0" \
     # show recent files and folders
