@@ -22,10 +22,10 @@ WORKDIR /tmp
 # check https://github.com/conda-forge/miniforge/releases
 
 # conda version
-ARG conda_version="4.10.3"
+ARG conda_version="4.11.0"
 
 # miniforge installer patch version
-ARG miniforge_patch_number="10"
+ARG miniforge_patch_number="0"
 
 # miniforge installer architecture
 ARG miniforge_arch="x86_64"
@@ -43,8 +43,8 @@ ARG miniforge_installer="${miniforge_python}-${miniforge_version}-Linux-${minifo
 
 # miniforge checksum
 # comes from this page: https://github.com/conda-forge/miniforge/releases
-# look for the *-Linux-*.sh.sha256 file
-ARG miniforge_checksum="8b789c619d03760e606a9c9b3d098414653f6037b80f16174ad94f0ee0c679d8"
+# look for the Mambaforge-*-Linux-*.sh.sha256 file
+ARG miniforge_checksum="49268ee30d4418be4de852dda3aa4387f8c95b55a76f43fb1af68dcbf8b205c3"
 
 # create the data directory and add symlinks for our NFS mounts
 RUN mkdir -p /data && \
@@ -145,7 +145,7 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
 # generate a notebook server config
 # cleanup temporary files
 # correct permissions
-RUN conda install --quiet --yes "notebook=6.4.6" "jupyterhub=1.5.0" "jupyterlab=3.2.4" && \
+RUN conda install --quiet --yes "notebook=6.4.6" "jupyterhub=1.5.0" "jupyterlab=3.2.5" && \
     conda clean --all -f -y && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
@@ -182,7 +182,7 @@ RUN pip install --no-cache-dir \
     # share links to running notebooks
     "jupyterlab-link-share==0.2.4" \
     # allow favoriting folders
-    "jupyterlab-favorites==3.0.0" \
+    "jupyterlab-favorites==3.0.1" \
     # show recent files and folders
     "jupyterlab-recents==3.0.1" \
     # generically build jupyterlab
