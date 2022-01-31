@@ -1,7 +1,7 @@
 # Original notebook created by the Jupyter Development Team
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
-FROM debian:bullseye@sha256:2906804d2a64e8a13a434a1a127fe3f6a28bf7cf3696be4223b06276f32f1f2d AS base
+FROM debian:bullseye@sha256:fb45fd4e25abe55a656ca69a7bef70e62099b8bb42a279a5e0ea4ae1ab410e0d AS base
 
 # github metadata
 LABEL org.opencontainers.image.source=https://github.com/uwcip/jupyterhub-base-notebook
@@ -145,7 +145,7 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
 # generate a notebook server config
 # cleanup temporary files
 # correct permissions
-RUN conda install --quiet --yes "notebook=6.4.6" "jupyterhub=1.5.0" "jupyterlab=3.2.5" && \
+RUN conda install --quiet --yes "notebook=6.4.8" "jupyterhub=2.1.1" "jupyterlab=3.2.8" && \
     conda clean --all -f -y && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
@@ -161,7 +161,7 @@ ENTRYPOINT ["tini", "-g", "--"]
 CMD ["start-notebook.sh"]
 
 # install cip dependencies
-ARG ciptools_version="1.3.3"
+ARG ciptools_version="1.3.2"
 RUN pip install --no-cache-dir https://github.com/uwcip/python-ciptools/releases/download/v${ciptools_version}/ciptools-${ciptools_version}-py3-none-any.whl \
     && fix-permissions "${CONDA_DIR}" \
     && fix-permissions "/home/${NB_USER}"
@@ -176,7 +176,7 @@ RUN pip install --no-cache-dir \
     # add notebook diff support
     "nbdime==3.1.1" \
     # add git support
-    "jupyterlab-git==0.34.0" \
+    "jupyterlab-git==0.34.2" \
     # add support to show variables
     "lckr-jupyterlab-variableinspector==3.0.9" \
     # share links to running notebooks
