@@ -145,7 +145,7 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
 # generate a notebook server config
 # cleanup temporary files
 # correct permissions
-RUN conda install --quiet --yes "notebook=6.4.8" "jupyterhub=2.1.1" "jupyterlab=3.2.9" && \
+RUN conda install --quiet --yes "notebook=6.4.8" "jupyterhub=2.2.0" "jupyterlab=3.2.9" && \
     conda clean --all -f -y && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
