@@ -1,7 +1,7 @@
 # Original notebook created by the Jupyter Development Team
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
-FROM debian:bullseye@sha256:10b622c6cf6daa0a295be74c0e412ed20e10f91ae4c6f3ce6ff0c9c04f77cbf6 AS base
+FROM debian:bullseye@sha256:3098a8fda8e7bc6bc92c37aaaa9d46fa0dd93992203ca3f53bb84e1d00ffb796 AS base
 
 # github metadata
 LABEL org.opencontainers.image.source=https://github.com/uwcip/jupyterhub-base-notebook
@@ -22,10 +22,10 @@ WORKDIR /tmp
 # check https://github.com/conda-forge/miniforge/releases
 
 # conda version
-ARG conda_version="4.11.0"
+ARG conda_version="4.13.0"
 
 # miniforge installer patch version
-ARG miniforge_patch_number="4"
+ARG miniforge_patch_number="1"
 
 # miniforge installer architecture
 ARG miniforge_arch="x86_64"
@@ -44,7 +44,7 @@ ARG miniforge_installer="${miniforge_python}-${miniforge_version}-Linux-${minifo
 # miniforge checksum
 # comes from this page: https://github.com/conda-forge/miniforge/releases
 # look for the Mambaforge-*-Linux-*.sh.sha256 file
-ARG miniforge_checksum="3f3a9177c3ce022a5f7f8798aab360af004c6c1e4963d0e91fc005e54bc1e271"
+ARG miniforge_checksum="412b79330e90e49cf7e39a7b6f4752970fcdb8eb54b1a45cc91afe6777e8518c"
 
 # create the data directory and add symlinks for our NFS mounts
 RUN mkdir -p /data && \
@@ -145,7 +145,7 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
 # generate a notebook server config
 # cleanup temporary files
 # correct permissions
-RUN conda install --quiet --yes "notebook=6.4.8" "jupyterhub=2.2.0" "jupyterlab=3.3.0" && \
+RUN conda install --quiet --yes "notebook=6.4.12" "jupyterhub=2.3.1" "jupyterlab=3.4.4" && \
     conda clean --all -f -y && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
@@ -161,7 +161,7 @@ ENTRYPOINT ["tini", "-g", "--"]
 CMD ["start-notebook.sh"]
 
 # install cip dependencies
-ARG ciptools_version="1.3.3"
+ARG ciptools_version="1.3.6"
 RUN pip install --no-cache-dir https://github.com/uwcip/python-ciptools/releases/download/v${ciptools_version}/ciptools-${ciptools_version}-py3-none-any.whl \
     && fix-permissions "${CONDA_DIR}" \
     && fix-permissions "/home/${NB_USER}"
@@ -170,21 +170,21 @@ RUN pip install --no-cache-dir \
     # install a little adventure
     "adventure==1.6" \
     # enable interactive SQL in the notebook
-    "ipython-sql==0.4.0" \
+    "ipython-sql==0.4.1" \
     # put a little thing in the upper right corner telling you how much memory you're using
     "jupyter-resource-usage==0.6.1" "jupyterlab-system-monitor==0.8.0" \
     # add notebook diff support
     "nbdime==3.1.1" \
     # add git support
-    "jupyterlab-git==0.34.2" \
+    "jupyterlab-git==0.38.0" \
     # add support to show variables
     "lckr-jupyterlab-variableinspector==3.0.9" \
     # share links to running notebooks
     "jupyterlab-link-share==0.2.4" \
     # allow favoriting folders
-    "jupyterlab-favorites==3.0.1" \
+    "jupyterlab-favorites==3.1.0" \
     # show recent files and folders
-    "jupyterlab-recents==3.0.1" \
+    "jupyterlab-recents==3.1.0" \
     # generically build jupyterlab
     && jupyter lab build \
     && rm -rf /home/${NB_USER}/.cache \
