@@ -135,6 +135,7 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
     if [[ "${PYTHON_VERSION}" != "default" ]]; then conda install --yes python="${PYTHON_VERSION}"; fi && \
     conda list python | grep '^python ' | tr -s ' ' | cut -d ' ' -f 1,2 >> "${CONDA_DIR}/conda-meta/pinned" && \
     conda install --quiet --yes "conda=${CONDA_VERSION}" 'pip' && \
+    conda config --prepend channels conda-forge && \
     conda update --all --quiet --yes && \
     conda clean --all -f -y && \
     rm -rf "/home/${NB_USER}/.cache/yarn" && \
