@@ -43,8 +43,8 @@ ARG miniforge_installer="${miniforge_python}-${miniforge_version}-Linux-${minifo
 
 # miniforge checksum
 # comes from this page: https://github.com/conda-forge/miniforge/releases
-# look for the Mambaforge-*-Linux-*.sh.sha256 file
-ARG miniforge_checksum="412b79330e90e49cf7e39a7b6f4752970fcdb8eb54b1a45cc91afe6777e8518c"
+# look for the Miniforge3-*-Linux-*.sh.sha256 file
+ARG miniforge_checksum="6e0a33060c525909fa0e8ae74cb511480e8191cef88e3c297619f31574804184"
 
 # create the data directory and add symlinks for our NFS mounts
 RUN mkdir -p /data && \
