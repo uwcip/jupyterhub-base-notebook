@@ -1,7 +1,7 @@
 # Original notebook created by the Jupyter Development Team
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
-FROM debian:bullseye@sha256:3098a8fda8e7bc6bc92c37aaaa9d46fa0dd93992203ca3f53bb84e1d00ffb796 AS base
+FROM debian:bullseye@sha256:5cf1d98cd0805951484f33b34c1ab25aac7007bb41c8b9901d97e4be3cf3ab04 AS base
 
 # github metadata
 LABEL org.opencontainers.image.source=https://github.com/uwcip/jupyterhub-base-notebook
@@ -22,7 +22,7 @@ WORKDIR /tmp
 # check https://github.com/conda-forge/miniforge/releases
 
 # conda version
-ARG conda_version="4.13.0"
+ARG conda_version="22.9.0"
 
 # miniforge installer patch version
 ARG miniforge_patch_number="1"
@@ -44,7 +44,7 @@ ARG miniforge_installer="${miniforge_python}-${miniforge_version}-Linux-${minifo
 # miniforge checksum
 # comes from this page: https://github.com/conda-forge/miniforge/releases
 # look for the Miniforge3-*-Linux-*.sh.sha256 file
-ARG miniforge_checksum="6e0a33060c525909fa0e8ae74cb511480e8191cef88e3c297619f31574804184"
+ARG miniforge_checksum="47f4b8ef9c5e2ba28eb3c17d27c4d0709f59ea3ab78d7d87c2d34e0c7ad439d5"
 
 # create the data directory and add symlinks for our NFS mounts
 RUN mkdir -p /data && \
@@ -116,7 +116,7 @@ RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
     fix-permissions "${CONDA_DIR}"
 
 USER ${NB_UID}
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION=3.10
 
 # setup work directory for backward-compatibility
 RUN mkdir "/home/${NB_USER}/work" && \
@@ -146,7 +146,7 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
 # generate a notebook server config
 # cleanup temporary files
 # correct permissions
-RUN conda install --quiet --yes "notebook=6.4.12" "jupyterhub=2.3.1" "jupyterlab=3.4.4" && \
+RUN conda install --quiet --yes "notebook=6.5.2" "jupyterhub=3.0.0" "jupyterlab=3.5.0" && \
     conda clean --all -f -y && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
@@ -162,7 +162,7 @@ ENTRYPOINT ["tini", "-g", "--"]
 CMD ["start-notebook.sh"]
 
 # install cip dependencies
-ARG ciptools_version="1.3.6"
+ARG ciptools_version="1.3.7"
 RUN pip install --no-cache-dir https://github.com/uwcip/python-ciptools/releases/download/v${ciptools_version}/ciptools-${ciptools_version}-py3-none-any.whl \
     && fix-permissions "${CONDA_DIR}" \
     && fix-permissions "/home/${NB_USER}"
@@ -173,11 +173,11 @@ RUN pip install --no-cache-dir \
     # enable interactive SQL in the notebook
     "ipython-sql==0.4.1" \
     # put a little thing in the upper right corner telling you how much memory you're using
-    "jupyter-resource-usage==0.6.1" "jupyterlab-system-monitor==0.8.0" \
+    "jupyter-resource-usage==0.6.4" "jupyterlab-system-monitor==0.8.0" \
     # add notebook diff support
     "nbdime==3.1.1" \
     # add git support
-    "jupyterlab-git==0.38.0" \
+    "jupyterlab-git==0.39.3" \
     # add support to show variables
     "lckr-jupyterlab-variableinspector==3.0.9" \
     # share links to running notebooks
