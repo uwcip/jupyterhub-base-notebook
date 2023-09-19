@@ -39,10 +39,13 @@ run-hooks () {
 
 run-hooks /usr/local/bin/start-notebook.d
 
+echo "DEBUG: HOME_OVERRIDE=${HOME_OVERRIDE}"
+echo "DEBUG: HOME=${HOME}"
+
 if [[ -z "${HOME_OVERRIDE}" ]]; then
-    HOME="${HOME_OVERRIDE}"
-else
     HOME="/home/${NB_USER}"
+else
+    HOME="${HOME_OVERRIDE}"
 fi
 
 echo "Using home directory: ${HOME}"
