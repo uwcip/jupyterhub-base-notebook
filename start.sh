@@ -39,26 +39,34 @@ run-hooks () {
 
 run-hooks /usr/local/bin/start-notebook.d
 
+if [[ -z "${HOME_OVERRIDE}" ]]; then
+    HOME="${HOME_OVERRIDE}"
+else
+    HOME="/home/${NB_USER}"
+fi
+
+echo "Using home directory: ${HOME}"
+
 # Handle special flags if we're root
 if [ "$(id -u)" == 0 ] ; then
 
     # Only attempt to change the jovyan username if it exists
     if id jovyan &> /dev/null ; then
         echo "Set username to: ${NB_USER}"
-        usermod -d "/home/${NB_USER}" -l "${NB_USER}" jovyan
+        usermod -d "${HOME}" -l "${NB_USER}" jovyan
     fi
 
     # handle home and working directory if the username changed
     if [[ "${NB_USER}" != "jovyan" ]]; then
         # changing username, make sure homedir exists
         # (it could be mounted, and we shouldn't create it if it already exists)
-        if [[ ! -e "/home/${NB_USER}" ]]; then
-            echo "Relocating home dir to /home/${NB_USER}"
-            mv /home/jovyan "/home/${NB_USER}" || ln -s /home/jovyan "/home/${NB_USER}"
+        if [[ ! -e "${HOME}" ]]; then
+            echo "Relocating home dir to ${HOME}"
+            mv /home/jovyan "${HOME}" || ln -s /home/jovyan "${HOME}"
         fi
         # if workdir is in /home/jovyan, cd to /home/${NB_USER}
         if [[ "${PWD}/" == "/home/jovyan/"* ]]; then
-            newcwd="/home/${NB_USER}/${PWD:13}"
+            newcwd="${HOME}/${PWD:13}"
             echo "Setting CWD to ${newcwd}"
             cd "${newcwd}"
         fi
@@ -67,9 +75,9 @@ if [ "$(id -u)" == 0 ] ; then
     # Handle case where provisioned storage does not have the correct permissions by default
     # Ex: default NFS/EFS (no auto-uid/gid)
     if [[ "${CHOWN_HOME}" == "1" || "${CHOWN_HOME}" == 'yes' ]]; then
-        echo "Changing ownership of /home/${NB_USER} to ${NB_UID}:${NB_GID} with options '${CHOWN_HOME_OPTS}'"
+        echo "Changing ownership of ${HOME} to ${NB_UID}:${NB_GID} with options '${CHOWN_HOME_OPTS}'"
         # shellcheck disable=SC2086
-        chown ${CHOWN_HOME_OPTS} "${NB_UID}:${NB_GID}" "/home/${NB_USER}"
+        chown ${CHOWN_HOME_OPTS} "${NB_UID}:${NB_GID}" "${HOME}"
     fi
     if [ -n "${CHOWN_EXTRA}" ]; then
         for extra_dir in $(echo "${CHOWN_EXTRA}" | tr ',' ' '); do
@@ -86,7 +94,7 @@ if [ "$(id -u)" == 0 ] ; then
             groupadd -f -g "${NB_GID}" -o "${NB_GROUP:-${NB_USER}}"
         fi
         userdel "${NB_USER}"
-        useradd --home "/home/${NB_USER}" -u "${NB_UID}" -g "${NB_GID}" -G 100 -l "${NB_USER}"
+        useradd --home "${HOME}" -u "${NB_UID}" -g "${NB_GID}" -G 100 -l "${NB_USER}"
     fi
 
     # Enable sudo if requested
@@ -108,7 +116,7 @@ if [ "$(id -u)" == 0 ] ; then
     # the environment preserved
     run-hooks /usr/local/bin/before-notebook.d
     echo "Executing the command:" "${cmd[@]}"
-    exec sudo -E -H -u "${NB_USER}" PATH="${PATH}" XDG_CACHE_HOME="/home/${NB_USER}/.cache" PYTHONPATH="${PYTHONPATH:-}" "${cmd[@]}"
+    exec sudo -E -H -u "${NB_USER}" PATH="${PATH}" XDG_CACHE_HOME="${HOME}/.cache" PYTHONPATH="${PYTHONPATH:-}" "${cmd[@]}"
 else
     if [[ "${NB_UID}" == "$(id -u jovyan 2>/dev/null)" && "${NB_GID}" == "$(id -g jovyan 2>/dev/null)" ]]; then
         # User is not attempting to override user/group via environment
