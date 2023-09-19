@@ -64,7 +64,7 @@ RUN apt-get -q update && apt-get -y upgrade && \
       # ---- OS dependencies for notebook server that starts but lacks all features ----
       tini cron ssmtp curl wget ca-certificates sudo locales fonts-liberation fonts-dejavu gfortran gcc \
       # ---- OS dependencies for fully functional notebook server ----
-      inkscape libsm6 libxext-dev libxrender1 lmodern netcat \
+      inkscape libsm6 libxext-dev libxrender1 lmodern netcat-traditional \
       # ---- nbconvert dependencies ----
       texlive-xetex texlive-fonts-recommended texlive-latex-recommended \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
